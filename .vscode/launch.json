@@ -1,0 +1,50 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "(gdb) Tests",
+			"type": "cppdbg",
+			"request": "launch",
+			"program": "${workspaceFolder}/test.exe",
+			"args": [],
+			"stopAtEntry": false,
+			"cwd": "${workspaceFolder}",
+			"environment": [],
+			"externalConsole": true,
+			"MIMode": "gdb",
+			"miDebuggerPath": "gdb64",
+			"preLaunchTask": "make test",
+			"setupCommands": [
+				{
+					"description": "Automatische Strukturierung und Einrückung für \"gdb\" aktivieren",
+					"text": "-enable-pretty-printing",
+					"ignoreFailures": true
+				}
+			]
+		},
+		{
+			"name": "(gdb)",
+			"type": "cppdbg",
+			"request": "launch",
+			"program": "${workspaceFolder}/out.exe",
+			"args": [],
+			"stopAtEntry": false,
+			"cwd": "${workspaceFolder}",
+			"environment": [],
+			"externalConsole": true,
+			"MIMode": "gdb",
+			"miDebuggerPath": "gdb64",
+			"preLaunchTask": "make",
+			"setupCommands": [
+				{
+					"description": "Automatische Strukturierung und Einrückung für \"gdb\" aktivieren",
+					"text": "-enable-pretty-printing",
+					"ignoreFailures": true
+				}
+			]
+		}
+	]
+}
