@@ -10,6 +10,7 @@
 #define str(x) (cmplx::String() + x).c_str()
 #define eternalstr(x) (cmplx::String(true, true) + x).c_str()
 #define strn(x) (cmplx::String() + x)
+#define line(x) (cmplx::String() + x + "\n")
 
 #ifdef _WIN64
 

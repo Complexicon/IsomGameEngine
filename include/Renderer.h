@@ -16,7 +16,8 @@ struct Color {
 	byte r, g, b, a;
 	Color(unsigned rgb, byte a = 255);
 	Color(byte r, byte g, byte b, byte a = 255);
-	static Color random() { return Color(rand() % 0xff, rand() % 0xff, rand() % 0xff); }
+	inline bool operator==(const Color& c) { return c.a == a & c.r == r & c.g == g & c.b == b; }
+	inline static Color random() { return Color(rand() % 0xff, rand() % 0xff, rand() % 0xff); }
 };
 
 enum class TextAlignment {
@@ -41,9 +42,10 @@ class Renderer {
 	Renderer(HWND window);
 	void DrawLine(int x0, int y0, int x1, int y1, const Color& color, float w = 1.f);
 	void DrawRoundedRect(float x, float y, float width, float height, const Color& color, float radius = 1.f);
+	void DrawRect(float x, float y, float width, float height, const Color& color);
 	void DrawString(int x, int y, int width, int height, const Color& color, str text);
-	void DrawPixel(int x, int y, const Color& color);
 	void FillRoundedRect(float x, float y, float width, float height, const Color& color, float radius = 1.f);
+	void FillRect(float x, float y, float width, float height, const Color& color);
 	void Clear(const Color& color);
 	void SetTextAlign(TextAlignment a);
 	int GetWidth() { return w; }

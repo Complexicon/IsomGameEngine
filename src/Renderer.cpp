@@ -2,35 +2,44 @@
 
 Renderer::Renderer(HWND window) : window(window) { Setup(); }
 
+Color color = {0};
+
+inline ID2D1SolidColorBrush* SetColor(ID2D1SolidColorBrush* b, const Color& c) {
+	if(!(color == c)) {
+		color = c;
+		b->SetColor(TO_RGBFLOAT(c));
+	}
+	return b;
+}
+
 void Renderer::DrawLine(int x0, int y0, int x1, int y1, const Color& color, float w) {
-	pBrush->SetColor(TO_RGBFLOAT(color));
-	pRenderTarget->DrawLine(TO_POINT(x0, y0), TO_POINT(x1, y1), pBrush, w);
+	pRenderTarget->DrawLine(TO_POINT(x0, y0), TO_POINT(x1, y1), SetColor(pBrush, color), w);
 }
 
 void Renderer::DrawRoundedRect(float x, float y, float width, float height, const Color& color, float radius) {
-	pBrush->SetColor(TO_RGBFLOAT(color));
 	radius = ((height / 2) * radius);
-	pRenderTarget->DrawRoundedRectangle({TO_BOUNDINGBOX(x, y, width, height), radius, radius}, pBrush);
+	pRenderTarget->DrawRoundedRectangle({TO_BOUNDINGBOX(x, y, width, height), radius, radius}, SetColor(pBrush, color));
+}
+
+void Renderer::DrawRect(float x, float y, float width, float height, const Color& color) {
+	pRenderTarget->DrawRectangle(TO_BOUNDINGBOX(x, y, width, height), SetColor(pBrush, color));
 }
 
 void Renderer::DrawString(int x, int y, int width, int height, const Color& color, str text) {
-	pBrush->SetColor(TO_RGBFLOAT(color));
 	const size_t cSize = strlen(text) + 1;
 	wchar_t* wc = new wchar_t[cSize];
 	mbstowcs(wc, text, cSize);
-	pRenderTarget->DrawTextA(wc, cSize, pTextFormat, TO_BOUNDINGBOX(x, y, width, height), pBrush);
+	pRenderTarget->DrawText(wc, cSize, pTextFormat, TO_BOUNDINGBOX(x, y, width, height), SetColor(pBrush, color));
 	delete[] wc;
 }
 
-void Renderer::DrawPixel(int x, int y, const Color& color) {
-	pBrush->SetColor(TO_RGBFLOAT(color));
-	pRenderTarget->FillRectangle(TO_BOUNDINGBOX(x, y, x, y), pBrush);
+void Renderer::FillRoundedRect(float x, float y, float width, float height, const Color& color, float radius) {
+	radius = ((height / 2) * radius);
+	pRenderTarget->FillRoundedRectangle({x, y, x + width, y + height, radius, radius}, SetColor(pBrush, color));
 }
 
-void Renderer::FillRoundedRect(float x, float y, float width, float height, const Color& color, float radius) {
-	pBrush->SetColor(TO_RGBFLOAT(color));
-	radius = ((height / 2) * radius);
-	pRenderTarget->FillRoundedRectangle({TO_BOUNDINGBOX(x, y, width, height), radius, radius}, pBrush);
+void Renderer::FillRect(float x, float y, float width, float height, const Color& color) {
+	pRenderTarget->FillRectangle({x, y, x + width, y + height}, SetColor(pBrush, color));
 }
 
 bool Renderer::Setup() {
@@ -38,7 +47,7 @@ bool Renderer::Setup() {
 	if(FAILED(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(pDWriteFactory),
 								  reinterpret_cast<IUnknown**>(&pDWriteFactory))))
 		return false;
-	return true;
+	return CreateTarget();
 }
 
 bool Renderer::CreateTarget() {

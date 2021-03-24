@@ -57,9 +57,9 @@ LRESULT Game::WndMsg(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 
 	case WM_CREATE:
 		r = new Renderer(window);
-		activeScene->setup(this);
 		CreateThread(0, 0, InvokeEngine, this, 0, 0);
 		CreateThread(0, 0, InvokeRender, this, 0, 0);
+		activeScene->setup(this);
 		return 0;
 
 	case WM_KEYDOWN: activeScene->userinput(false, wParam, 0); return 0;
@@ -103,6 +103,11 @@ Game::Game(IScene* startingScene, const char* windowName) {
 	if(window == 0) return;
 
 	ShowWindow(window, 5);
+}
+
+void Game::SetScene(IScene* s) {
+	activeScene = s;
+	activeScene->setup(this);
 }
 
 void Game::RenderCurrentScene() {

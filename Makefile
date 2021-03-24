@@ -78,4 +78,5 @@ clrscr:
 
 clean:
 	@echo cleaning up...
-	@rmdir /s /q $(ODIR) $(OUTFILE)
+	@rmdir /s /q $(ODIR)
+	@del /s /q $(OUTFILE)

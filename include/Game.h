@@ -44,6 +44,7 @@ class Game {
 	bool runEngine = true;
 
 	Game(IScene* startingScene, const char* windowName);
+	void SetScene(IScene* s);
 	void RenderCurrentScene();
 	void start();
 
@@ -56,7 +57,6 @@ class Game {
 class IScene {
   private:
 	void setup(Game* game);
-	;
 
   public:
 	Game* game = 0;
