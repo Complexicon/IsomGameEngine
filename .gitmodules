@@ -1,0 +1,3 @@
+[submodule "lib/string"]
+	path = lib/string
+	url = https://github.com/Complexicon/string
