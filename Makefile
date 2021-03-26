@@ -41,7 +41,7 @@ SRCDIR=src
 
 $(ODIR)/%.o: $(SRCDIR)/%.cpp | $(ODIR)
 	@echo $(patsubst $(ODIR)/%,%,$@):
-	@$(CC) -c -o $@ $< $(32BITFLAG) $(CFLAGS) -I$(IDIR)
+	@$(CC) -c -o $@ $< $(32BITFLAG) $(CFLAGS) -I$(IDIR) -I$(LDIR)
 
 $(OUTFILE): $(patsubst %.cpp,$(ODIR)/%.o,$(SRC))
 	@echo linking $(OUTFILE)...

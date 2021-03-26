@@ -1,7 +1,9 @@
 #include "Game.h"
 #include "Map.h"
-#include "Str.h"
+#include "string/inc.h"
 #include <windows.h>
+
+#define line(x) (cmplx::String() + x + "\n")
 
 #define IN_BOUNDS(vec, r, szX, szY) (vec.x - r >= 0 && vec.x + r <= szX && vec.y - r >= 0 && vec.y + r <= szY)
 
