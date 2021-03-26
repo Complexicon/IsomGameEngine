@@ -5,6 +5,27 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
+			"name": "(gdb)",
+			"type": "cppdbg",
+			"request": "launch",
+			"program": "${workspaceFolder}/out.exe",
+			"args": [],
+			"stopAtEntry": false,
+			"cwd": "${workspaceFolder}",
+			"environment": [],
+			"externalConsole": true,
+			"MIMode": "gdb",
+			"miDebuggerPath": "gdb64",
+			"preLaunchTask": "make",
+			"setupCommands": [
+				{
+					"description": "Automatische Strukturierung und Einrückung für \"gdb\" aktivieren",
+					"text": "-enable-pretty-printing",
+					"ignoreFailures": true
+				}
+			]
+		},
+		{
 			"name": "(gdb) Tests",
 			"type": "cppdbg",
 			"request": "launch",
@@ -25,26 +46,5 @@
 				}
 			]
 		},
-		{
-			"name": "(gdb)",
-			"type": "cppdbg",
-			"request": "launch",
-			"program": "${workspaceFolder}/out.exe",
-			"args": [],
-			"stopAtEntry": false,
-			"cwd": "${workspaceFolder}",
-			"environment": [],
-			"externalConsole": true,
-			"MIMode": "gdb",
-			"miDebuggerPath": "gdb64",
-			"preLaunchTask": "make",
-			"setupCommands": [
-				{
-					"description": "Automatische Strukturierung und Einrückung für \"gdb\" aktivieren",
-					"text": "-enable-pretty-printing",
-					"ignoreFailures": true
-				}
-			]
-		}
 	]
 }
