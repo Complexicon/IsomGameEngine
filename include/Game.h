@@ -8,6 +8,9 @@
 #pragma comment(linker, "/subsystem:windows /ENTRY:mainCRTStartup")
 #endif
 
+struct iV2D{ int x,y; };
+struct fV2D{ float x,y; };
+
 class Game;
 class IScene;
 

@@ -63,6 +63,7 @@ LRESULT Game::WndMsg(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 		return 0;
 
 	case WM_KEYDOWN: activeScene->userinput(false, wParam, 0); return 0;
+	case WM_LBUTTONDOWN: activeScene->userinput(false, wParam, lParam); return 0;
 
 	case WM_MOUSEMOVE: activeScene->userinput(true, LOWORD(lParam), HIWORD(lParam)); return 0;
 

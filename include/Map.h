@@ -9,6 +9,7 @@ class Map {
 	void Randomize();
 	void LoadMap(char* map, unsigned size);
 	char Get(int x, int y);
+	void SetTile(int x, int y, char newTile);
 	inline char* GetMap() { return mapArr; }
 	inline int GetMapWidth() { return width; }
 	inline int GetMapHeight() { return height; }

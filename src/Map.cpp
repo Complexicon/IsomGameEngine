@@ -19,6 +19,11 @@ char Map::Get(int x, int y) {
 	return mapArr[y * width + x];
 }
 
+void Map::SetTile(int x, int y, char newTile){
+	if(x >= width || y >= height || x < 0 || y < 0) return;
+	mapArr[y * width + x] = newTile;
+}
+
 void Map::LoadMap(char* map, unsigned size) {
 	mapArr = new char[size * size];
 	memcpy(mapArr, map, size * size);
