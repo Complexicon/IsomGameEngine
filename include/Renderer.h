@@ -1,6 +1,7 @@
 #undef UNICODE
 #include <d2d1.h>
 #include <dwrite.h>
+#include "Sprite.h"
 
 #define BYTE_TO_FLOAT(b) (b / 255.f)
 #define TO_BOUNDINGBOX(x, y, width, height) \
@@ -40,7 +41,9 @@ class Renderer {
 
   public:
 	Renderer(HWND window);
+	Sprite* CreateTexture(const char* filename);
 	void DrawLine(int x0, int y0, int x1, int y1, const Color& color, float w = 1.f);
+	void DrawSprite(float x, float y, float width, float height, Sprite* texture, bool linearScale = true, float alpha = 1.f);
 	void DrawRoundedRect(float x, float y, float width, float height, const Color& color, float radius = 1.f);
 	void DrawRect(float x, float y, float width, float height, const Color& color);
 	void DrawString(int x, int y, int width, int height, const Color& color, str text);
@@ -61,4 +64,5 @@ class Renderer {
 	void Resize();
 
 	friend class Game;
+	friend class Sprite;
 };

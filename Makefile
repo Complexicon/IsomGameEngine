@@ -1,5 +1,5 @@
-LIBS=dwrite d2d1
-SRC=Game.cpp Map.cpp OpenCastle.cpp Renderer.cpp
+LIBS=dwrite d2d1 ole32 windowscodecs
+SRC=Game.cpp Map.cpp OpenCastle.cpp Renderer.cpp Sprite.cpp
 DEBUG:=y
 NAME:=out
 IDIR=include

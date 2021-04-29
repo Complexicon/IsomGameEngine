@@ -1,8 +1,11 @@
 #include "Game.h"
+#include "utilities.h"
 
 const char CLASS_NAME[] = "D2DGame";
 
-void Game::Timer(timerCallback func, bool& condition, float targetTime, float& procTime, int& perSec) {
+Game* game;
+
+void Timer(timerCallback func, bool& condition, float targetTime, float& procTime, int& perSec) {
 	long64 t = timeNow();
 	float timer = 0, secTimer = 0, psCtr = 0;
 
@@ -13,7 +16,7 @@ void Game::Timer(timerCallback func, bool& condition, float targetTime, float& p
 
 		if(timer >= targetTime) {
 			long64 d = timeNow();
-			func(this, timer);
+			func(game, timer);
 			procTime = deltaTime(d);
 			psCtr++;
 			timer = 0;
@@ -35,6 +38,8 @@ void RenderActive(Game* g, float) { g->RenderCurrentScene(); }
 void UpdateActive(Game* g, float delta) { g->activeScene->update(delta); }
 
 int Game::EngineThread() {
+	activeScene->setup(this);
+	CreateThread(0, 0, InvokeRender, this, 0, 0);
 	Timer(UpdateActive, runEngine, 1.f / gameTPS, tickTime, currentTPS);
 	return 0;
 }
@@ -58,8 +63,6 @@ LRESULT Game::WndMsg(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	case WM_CREATE:
 		r = new Renderer(window);
 		CreateThread(0, 0, InvokeEngine, this, 0, 0);
-		CreateThread(0, 0, InvokeRender, this, 0, 0);
-		activeScene->setup(this);
 		return 0;
 
 	case WM_KEYDOWN: activeScene->userinput(false, wParam, 0); return 0;
@@ -73,7 +76,7 @@ LRESULT Game::WndMsg(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 }
 
 Game::Game(IScene* startingScene, const char* windowName) {
-
+	game = this;
 	WNDCLASS wc = {};
 
 	wc.lpfnWndProc = [](HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -119,12 +122,13 @@ void Game::RenderCurrentScene() {
 	}
 }
 
-void Game::start() {
+int Game::start() {
 	MSG msg;
 	while(GetMessageA(&msg, 0, 0, 0)) {
 		TranslateMessage(&msg);
 		DispatchMessageA(&msg);
 	}
+	return 0;
 }
 
 void IScene::setup(Game* game) {

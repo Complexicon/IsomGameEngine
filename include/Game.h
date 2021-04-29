@@ -8,31 +8,23 @@
 #pragma comment(linker, "/subsystem:windows /ENTRY:mainCRTStartup")
 #endif
 
+// integer Vector2D
 struct iV2D{ int x,y; };
+// float Vector2D
 struct fV2D{ float x,y; };
 
 class Game;
 class IScene;
 
-typedef long long long64;
 typedef void (*timerCallback)(Game*, float);
-
-inline int random(int bounds) { return rand() % bounds; }
-inline long64 timeNow() {
-	FILETIME t1;
-	GetSystemTimeAsFileTime(&t1);
-	return (long64)t1.dwLowDateTime + ((long64)(t1.dwHighDateTime) << 32LL);
-}
-inline float deltaTime(long64 startTiming) { return (float)(timeNow() - startTiming) / 10000000; }
 
 class Game {
   private:
 	LRESULT WndMsg(UINT uMsg, WPARAM wParam, LPARAM lParam);
-	static DWORD InvokeEngine(LPVOID gameInst) { return ((Game*)gameInst)->EngineThread(); };
-	static DWORD InvokeRender(LPVOID gameInst) { return ((Game*)gameInst)->RenderThread(); };
+	static unsigned long InvokeEngine(void* gameInst) { return ((Game*)gameInst)->EngineThread(); };
+	static unsigned long InvokeRender(void* gameInst) { return ((Game*)gameInst)->RenderThread(); };
 	int EngineThread();
 	int RenderThread();
-	void Timer(timerCallback func, bool& condition, float targetTime, float& procTime, int& perSec);
 	float tickTime = 0;
 	float frameTime = 0;
 	int currentFps = 0;
@@ -43,13 +35,13 @@ class Game {
 	HWND window;
 	IScene* activeScene;
 	int targetFps = 0;
-	int gameTPS = 20;
+	int gameTPS = 0;
 	bool runEngine = true;
 
 	Game(IScene* startingScene, const char* windowName);
 	void SetScene(IScene* s);
 	void RenderCurrentScene();
-	void start();
+	int start();
 
 	int getFPS() { return currentFps; }
 	int getTPS() { return currentTPS; }

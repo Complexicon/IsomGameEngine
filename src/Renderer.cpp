@@ -82,6 +82,10 @@ bool Renderer::CreateTarget() {
 	return SUCCEEDED(hr);
 }
 
+Sprite* Renderer::CreateTexture(const char* filename){
+	return new Sprite(filename, pRenderTarget);
+}
+
 void Renderer::DiscardTarget() {
 	// release d2d
 	pRenderTarget->Release();
@@ -128,6 +132,10 @@ void Renderer::SetTextAlign(TextAlignment a) {
 		pTextFormat->SetParagraphAlignment(DWRITE_PARAGRAPH_ALIGNMENT_CENTER);
 		break;
 	}
+}
+
+void Renderer::DrawSprite(float x, float y, float width, float height, Sprite* texture, bool linearScale, float alpha){
+	pRenderTarget->DrawBitmap(texture->bitmap, TO_BOUNDINGBOX(x,y,width,height), alpha, (D2D1_BITMAP_INTERPOLATION_MODE)linearScale);
 }
 
 Color::Color(unsigned rgb, byte a) : r((rgb & 0xFF0000) >> 16), g((rgb & 0x00FF00) >> 8), b(rgb & 0x0000FF), a(a) {}

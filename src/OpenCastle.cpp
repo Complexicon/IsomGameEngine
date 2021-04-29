@@ -2,16 +2,19 @@
 #include "Map.h"
 #include "string/inc.h"
 #include <windows.h>
+#include "utilities.h"
 
 #define line(x) (cmplx::String() + x + "\n")
+#define VECPOS(name,vec) line(name + ": [x: " + vec.x + ", y: " + vec.y + "]")
+
+#define PIXOFF(in) ((in - (int)in) * fieldSize)
+#define PIXTOTILE(in) {(in.x + (int)PIXOFF(cam.x)) / fieldSize + (int)cam.x, (in.y + (int)PIXOFF(cam.y)) / fieldSize + (int)cam.y}
 
 #define IN_BOUNDS(vec, r, szX, szY) (vec.x - r >= 0 && vec.x + r <= szX && vec.y - r >= 0 && vec.y + r <= szY)
 #define CEILDIV(x,y) ((x+y-1) / y)
 #define FLOATIFY(in,max) ((((float)in / max) * 2) - 1.f)
-#define VECPOS(name,vec) line(name + ": [x: " + vec.x + ", y: " + vec.y + "]")
-#define PIXOFF(in) ((in - (int)in) * fieldSize)
 
-void debug(Game* game, Str additonal = "") {
+inline void debug(Game* game, Str additonal = "") {
 	Str defaultDebug = line("fps: " + game->getFPS());
 	defaultDebug += line("tps: " + game->getTPS());
 	defaultDebug += line("frametime: " + game->getFrameTime() * 1000 + "ms");
@@ -35,51 +38,61 @@ class TestScene : public IScene {
 	iV2D selectedTile;
 	bool draw = false;
 
+	Sprite* tiles[3];
+
 	void init() {
 		w = r->GetWidth();
 		h = r->GetHeight();
-		game->gameTPS = 128;
 		fieldSize = 55;
+		game->gameTPS = 128;
 		zoom();
-
+		tiles[0] = r->CreateTexture("textures/grass.png");
+		tiles[2] = r->CreateTexture("textures/dirt.png");
+		tiles[1] = r->CreateTexture("textures/water.png");
 #include "mapout.h"
 		m.LoadMap(map, SZ_MAP);
 	}
 
 	void update(float delta) {
-		if(mouse.x > 0.5 || mouse.x < -0.5) cam.x += mouse.x / 2;
-		if(mouse.y > 0.5 || mouse.y < -0.5) cam.y += mouse.y / 2;
-		selectedTile = pixelToTile(mouseReal);
+		if(mouse.x > 0.8 || mouse.x < -0.8) cam.x += mouse.x / 2;
+		if(mouse.y > 0.7 || mouse.y < -0.7) cam.y += mouse.y / 2;
+		selectedTile = PIXTOTILE(mouseReal);
 		if(draw) m.SetTile(selectedTile.x, selectedTile.y, 0);
 	}
 
-	iV2D pixelToTile(iV2D in) { return {(in.x + (int)PIXOFF(cam.x)) / fieldSize + (int)cam.x, (in.y + (int)PIXOFF(cam.y)) / fieldSize + (int)cam.y}; }
-
 	void zoom(bool in = false) {
-		if(!in && fieldSize <= 5) return; // temp smallest cap
+		if(!in && fieldSize <= 10) return; // temp smallest cap
 		fieldSize += in ? 5 : -5;
 		fieldsOnScreenX = CEILDIV(w, fieldSize);
 		fieldsOnScreenY = CEILDIV(h, fieldSize);
 	}
 
-	const Color tiles[4] = {Color(0x40eb34), Color(0x1ea3eb), Color(0x7d4e02), Color(0xffffff, 50)};
-
-	void drawTile(int x, int y, unsigned tileData) {
-		if(tileData > 3) return;
-		r->FillRect(x * fieldSize - PIXOFF(cam.x), y * fieldSize - PIXOFF(cam.y), fieldSize + 1, fieldSize + 1, tiles[tileData]);
+	void drawTile(int x, int y, unsigned tileData, fV2D tempCam, fV2D pixelOff) {
+		if(tileData > 3 || tileData < 0) return;
+		switch(tileData){
+			case 3:
+				r->FillRect(x * fieldSize - pixelOff.x, y * fieldSize - pixelOff.y, fieldSize + 1, fieldSize + 1, Color(0xffffff, 50));
+				break;
+			default:
+				r->DrawSprite(x * fieldSize - pixelOff.x, y * fieldSize - pixelOff.y, fieldSize + 1, fieldSize + 1, tiles[tileData], false);
+				break;
+		}
 	}
 
 	void render() {
 		r->Clear(Color(0x111111));
 
-		for(int y = 0; y < fieldsOnScreenY; y++) {
-			for(int x = 0; x < fieldsOnScreenX; x++) { drawTile(x, y, m.Get(((int)cam.x + x), ((int)cam.y + y))); }
+		fV2D tmp = cam; // tearing fix
+		fV2D pxOff = { PIXOFF(tmp.x), PIXOFF(tmp.y)};
+
+		for(int y = 0; y < fieldsOnScreenY + 1; y++) {
+			for(int x = 0; x < fieldsOnScreenX + 1; x++) { drawTile(x, y, m.Get(((int)tmp.x + x), ((int)tmp.y + y)), tmp, pxOff); }
 		}
 
-		drawTile(selectedTile.x - (int)cam.x, selectedTile.y - (int)cam.y, 3);
+		drawTile(selectedTile.x - (int)tmp.x, selectedTile.y - (int)tmp.y, 3, tmp, pxOff);
 		// debug overlay
 		debug(game, 
-			VECPOS("cam", cam) + 
+			VECPOS("cam", tmp) + 
 			VECPOS("mouse", mouse) + 
 			VECPOS("mouse selected tile", selectedTile) +
 			line("drawing " + draw)
@@ -105,7 +118,4 @@ class TestScene : public IScene {
 	}
 };
 
-int main() {
-	Game(new TestScene(), "Testgame").start();
-	return 1;
-}
+int main() { return Game(new TestScene(), "Testgame").start(); }
