@@ -1,8 +1,13 @@
+#ifndef OPNCSTL
+#define OPNCSTL
+
 #include "Game.h"
 #include "Map.h"
 #include "string/inc.h"
 #include <windows.h>
 #include "utilities.h"
+
+#include "Pause.h"
 
 #define line(x) (cmplx::String() + x + "\n")
 #define VECPOS(name,vec) line(name + ": [x: " + vec.x + ", y: " + vec.y + "]")
@@ -24,7 +29,7 @@ inline void debug(Game* game, Str additonal = "") {
 	game->r->DrawString(0, 0, 250, 150, Color(0xffffff), defaultDebug.c_str());
 }
 
-class TestScene : public IScene {
+class OpenCastle : public IScene {
 
 	Map m;
 	int fieldSize;
@@ -40,17 +45,23 @@ class TestScene : public IScene {
 
 	Sprite* tiles[3];
 
+	IScene* pause;
+
 	void init() {
 		w = r->GetWidth();
 		h = r->GetHeight();
 		fieldSize = 55;
 		game->gameTPS = 128;
+		game->targetFps = 200;
 		zoom();
 		tiles[0] = r->CreateTexture("textures/grass.png");
 		tiles[2] = r->CreateTexture("textures/dirt.png");
 		tiles[1] = r->CreateTexture("textures/water.png");
 #include "mapout.h"
 		m.LoadMap(map, SZ_MAP);
+
+		// setup scenes here
+		pause = game->InitScene(new PauseMenu(this));
 	}
 
 	void update(float delta) {
@@ -113,9 +124,9 @@ class TestScene : public IScene {
 		case 0x53: cam.y += 0.5f; return;
 		case 0x41: cam.x -= 0.5f; return;
 		case 0x44: cam.x += 0.5f; return;
-		case VK_ESCAPE: PostQuitMessage(0); return;
+		case VK_ESCAPE: game->activeScene = pause; return;
 		}
 	}
 };
 
-int main() { return Game(new TestScene(), "Testgame").start(); }
+#endif

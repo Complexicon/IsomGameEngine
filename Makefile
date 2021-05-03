@@ -1,5 +1,5 @@
 LIBS=dwrite d2d1 ole32 windowscodecs
-SRC=Game.cpp Map.cpp OpenCastle.cpp Renderer.cpp Sprite.cpp
+SRC=Game.cpp Map.cpp main.cpp Renderer.cpp Sprite.cpp
 DEBUG:=y
 NAME:=out
 IDIR=include
@@ -39,10 +39,6 @@ SRCDIR=src
 
 .PHONY: clean fresh fresh-test test all status
 
-$(ODIR)/%.o: $(SRCDIR)/%.cpp | $(ODIR)
-	@echo $(patsubst $(ODIR)/%,%,$@):
-	@$(CC) -c -o $@ $< $(32BITFLAG) $(CFLAGS) -I$(IDIR) -I$(LDIR)
-
 $(OUTFILE): $(patsubst %.cpp,$(ODIR)/%.o,$(SRC))
 	@echo linking $(OUTFILE)...
 	@$(CC) -o $(OUTFILE) $^ $(32BITFLAG) $(LFLAGS) -L$(LDIR) $(patsubst %,-l%,$(LIBS))
@@ -53,6 +49,17 @@ $(OUTFILE): $(patsubst %.cpp,$(ODIR)/%.o,$(SRC))
 $(TESTFILENAME).exe: $(patsubst %.cpp,$(ODIR)/%.o,test.cpp)
 	@echo building $(TESTFILENAME).exe...
 	@$(CC) -o $(TESTFILENAME).exe $(32BITFLAG) $^ -L. -l$(NAME)
+
+-include $(ODIR)/.depend
+
+$(ODIR)/.depend: $(patsubst %.cpp,$(SRCDIR)/%.cpp,$(SRC))
+	@echo building dependencies
+	@-del /s /q "$@"
+	@$(foreach X,$^,$(CC) $(CFLAGS) -I$(IDIR) -I$(LDIR) -MT $(patsubst $(SRCDIR)/%.cpp,$(ODIR)/%.o,$(X)) -MM $(X) >> "$@" && ) echo done
+
+$(ODIR)/%.o: $(SRCDIR)/%.cpp | $(ODIR)
+	@echo $(patsubst $(ODIR)/%,%,$@):
+	@$(CC) -c -o $@ $< $(32BITFLAG) $(CFLAGS) -I$(IDIR) -I$(LDIR)
 
 status:
 	@echo -------------------------------------------------
@@ -78,5 +85,5 @@ clrscr:
 
 clean:
 	@echo cleaning up...
-	@rmdir /s /q $(ODIR)
-	@del /s /q $(OUTFILE)
+	@-rmdir /s /q $(ODIR)
+	@-del /s /q $(OUTFILE)

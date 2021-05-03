@@ -61,7 +61,7 @@ bool Renderer::CreateTarget() {
 		// Create all graphic resources
 
 		hr = pFactory->CreateHwndRenderTarget(D2D1::RenderTargetProperties(),
-											  D2D1::HwndRenderTargetProperties(window, {(UINT32)rc.right, (UINT32)rc.bottom}),
+											  D2D1::HwndRenderTargetProperties(window, {(UINT32)rc.right, (UINT32)rc.bottom}, D2D1_PRESENT_OPTIONS_IMMEDIATELY),
 											  &pRenderTarget);
 
 		// TODO: relocate directwrite

@@ -39,7 +39,7 @@ class Game {
 	bool runEngine = true;
 
 	Game(IScene* startingScene, const char* windowName);
-	void SetScene(IScene* s);
+	IScene* InitScene(IScene* s);
 	void RenderCurrentScene();
 	int start();
 

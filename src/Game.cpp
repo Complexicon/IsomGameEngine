@@ -109,9 +109,9 @@ Game::Game(IScene* startingScene, const char* windowName) {
 	ShowWindow(window, 5);
 }
 
-void Game::SetScene(IScene* s) {
-	activeScene = s;
-	activeScene->setup(this);
+IScene* Game::InitScene(IScene* s) {
+	s->setup(this);
+	return s;
 }
 
 void Game::RenderCurrentScene() {
