@@ -27,20 +27,29 @@ class PauseMenu : public IScene {
 
 	}
 
-	void userinput(bool mouseEvent, int param1, int param2) {
-		if(mouseEvent){
-			overContinue = IN_BOX(param1, param2, 200, 100, 500, 500);
-			overQuit = IN_BOX(param1, param2, 200, 100, 500, 650);
-		} else {
-			switch(param1){
-				case VK_ESCAPE:
-					game->activeScene = oldScene;
-					return;
-				case VK_LBUTTON:
+	void userinput(const UserInputEvent& e){
+		switch(e.type){
+			case UserInputType::Mouse:
+				if(CAST(MouseInputEvent, e).mouseEvent == MouseEventType::Move){
+					MouseMoveEvent me = CAST(MouseMoveEvent, e);
+					overContinue = IN_BOX(me.mouseX, me.mouseY, 200, 100, 500, 500);
+					overQuit = IN_BOX(me.mouseX, me.mouseY, 200, 100, 500, 650);
+				}else{
+					MouseClickEvent me = CAST(MouseClickEvent, e);
+					if(!me.pressed && me.button != MouseButton::Left) return;
 					if(overContinue) game->activeScene = oldScene;
 					else if(overQuit) PostQuitMessage(0);
+				}
+				return;
+			case UserInputType::Keyboard:
+				KeyboardInputEvent ke = CAST(KeyboardInputEvent, e);
+				if(!ke.pressed) return;
+				switch(ke.key) {
+				case Key::ESCAPE:
+					game->activeScene = oldScene;
 					return;
-			}
+				}
+				return;
 		}
 	}
 

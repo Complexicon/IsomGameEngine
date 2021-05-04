@@ -19,16 +19,6 @@
 #define CEILDIV(x,y) ((x+y-1) / y)
 #define FLOATIFY(in,max) ((((float)in / max) * 2) - 1.f)
 
-inline void debug(Game* game, Str additonal = "") {
-	Str defaultDebug = line("fps: " + game->getFPS());
-	defaultDebug += line("tps: " + game->getTPS());
-	defaultDebug += line("frametime: " + game->getFrameTime() * 1000 + "ms");
-	defaultDebug += line("tickTime: " + game->getTickTime() * 1000 + "ms");
-	defaultDebug += additonal;
-	game->r->FillRect(0, 0, 250, 150, Color(0, 100));
-	game->r->DrawString(0, 0, 250, 150, Color(0xffffff), defaultDebug.c_str());
-}
-
 class OpenCastle : public IScene {
 
 	Map m;
@@ -69,6 +59,14 @@ class OpenCastle : public IScene {
 		if(mouse.y > 0.7 || mouse.y < -0.7) cam.y += mouse.y / 2;
 		selectedTile = PIXTOTILE(mouseReal);
 		if(draw) m.SetTile(selectedTile.x, selectedTile.y, 0);
+
+		game->additionalDebugInfo = (
+			VECPOS("cam", cam) + 
+			VECPOS("mouse", mouse) + 
+			VECPOS("mouse selected tile", selectedTile) +
+			line("drawing " + draw)
+		);
+
 	}
 
 	void zoom(bool in = false) {
@@ -101,30 +99,32 @@ class OpenCastle : public IScene {
 		}
 
 		drawTile(selectedTile.x - (int)tmp.x, selectedTile.y - (int)tmp.y, 3, tmp, pxOff);
-		// debug overlay
-		debug(game, 
-			VECPOS("cam", tmp) + 
-			VECPOS("mouse", mouse) + 
-			VECPOS("mouse selected tile", selectedTile) +
-			line("drawing " + draw)
-		);
 	}
 
-	void userinput(bool mouseEvent, int param1, int param2) {
-		if(mouseEvent) {
-			mouse = { FLOATIFY(param1, w), FLOATIFY(param2, h) };
-			mouseReal = { param1, param2 };
-			return;
-		}
-		switch(param1) {
-		case VK_ADD: zoom(true); return;
-		case VK_SUBTRACT: zoom(); return;
-		case VK_LBUTTON: draw = !draw; return;
-		case 0x57: cam.y -= 0.5f; return;
-		case 0x53: cam.y += 0.5f; return;
-		case 0x41: cam.x -= 0.5f; return;
-		case 0x44: cam.x += 0.5f; return;
-		case VK_ESCAPE: game->activeScene = pause; return;
+	void userinput(const UserInputEvent& e){
+		switch(e.type){
+			case UserInputType::Mouse:
+				if(CAST(MouseInputEvent, e).mouseEvent == MouseEventType::Move){
+					MouseMoveEvent me = CAST(MouseMoveEvent, e);
+					mouse = { FLOATIFY(me.mouseX, w), FLOATIFY(me.mouseY, h) };
+					mouseReal = { me.mouseX, me.mouseY };
+				}else{
+					MouseClickEvent me = CAST(MouseClickEvent, e);
+					if(me.button != MouseButton::Left) return;
+					draw = me.pressed;
+				}
+				return;
+			case UserInputType::Keyboard:
+				KeyboardInputEvent ke = CAST(KeyboardInputEvent, e);
+				if(!ke.pressed) return;
+				switch(ke.key) {
+				case Key::ADD: zoom(true); return;
+				case Key::SUBTRACT: zoom(); return;
+				case Key::LBUTTON: draw = !draw; return;
+				case Key::CONTROL: game->drawDebug = !game->drawDebug; return;
+				case Key::ESCAPE: game->activeScene = pause; return;
+				}
+				return;
 		}
 	}
 };

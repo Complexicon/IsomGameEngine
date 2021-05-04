@@ -2,7 +2,9 @@
 #define WIN32_LEAN_AND_MEAN
 #undef UNICODE
 #include "Renderer.h"
+#include "IScene.h"
 #include <windows.h>
+#include "string/inc.h"
 
 #ifdef _MSC_VER
 #pragma comment(linker, "/subsystem:windows /ENTRY:mainCRTStartup")
@@ -38,6 +40,9 @@ class Game {
 	int gameTPS = 0;
 	bool runEngine = true;
 
+	bool drawDebug = true;
+	Str additionalDebugInfo = 0;
+
 	Game(IScene* startingScene, const char* windowName);
 	IScene* InitScene(IScene* s);
 	void RenderCurrentScene();
@@ -47,20 +52,4 @@ class Game {
 	int getTPS() { return currentTPS; }
 	float getTickTime() { return tickTime; }
 	float getFrameTime() { return frameTime; }
-};
-
-class IScene {
-  private:
-	void setup(Game* game);
-
-  public:
-	Game* game = 0;
-	Renderer* r = 0;
-
-	virtual void init(){};
-	virtual void update(float delta) = 0;
-	virtual void render() = 0;
-	virtual void userinput(bool mouseEvent, int param1, int param2) = 0;
-
-	friend class Game;
 };
