@@ -22,11 +22,9 @@ void Timer(timerCallback func, bool& condition, float targetTime, float& procTim
 			timer = 0;
 		}
 
-		if(secTimer >= 1) {
-			perSec = psCtr;
-			psCtr = 0;
-			secTimer = 0;
-		}
+		perSec = perSec * (!(int)secTimer) + psCtr * (int)secTimer; // branchless hack
+		psCtr -= psCtr * (int)secTimer;								// branchless hack
+		secTimer -= secTimer * (int)secTimer;						// branchless hack
 
 		timer += delta;
 		secTimer += delta;
@@ -51,14 +49,17 @@ int Game::RenderThread() {
 	return 0;
 }
 
+void Game::StopEngine() {
+	runEngine = false;
+	r->DiscardTarget();
+	r->Destroy();
+	PostQuitMessage(0);
+}
+
 LRESULT Game::WndMsg(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	switch(uMsg) {
 	case WM_DESTROY:
-		runEngine = false;
-		r->DiscardTarget();
-		r->Destroy();
-		PostQuitMessage(0);
-		return 0;
+	case WM_QUIT: StopEngine();return 0;
 
 	case WM_CREATE:
 		r = new Renderer(window);
@@ -68,14 +69,26 @@ LRESULT Game::WndMsg(UINT uMsg, WPARAM wParam, LPARAM lParam) {
 	case WM_KEYDOWN: activeScene->userinput(KeyDownEvent((Key)wParam)); return 0;
 	case WM_KEYUP: activeScene->userinput(KeyUpEvent((Key)wParam)); return 0;
 
-	case WM_LBUTTONDOWN: activeScene->userinput(MouseClickEvent(MouseButton::Left, LOWORD(lParam), HIWORD(lParam), true)); return 0;
-	case WM_LBUTTONUP: activeScene->userinput(MouseClickEvent(MouseButton::Left, LOWORD(lParam), HIWORD(lParam), false)); return 0;
+	case WM_LBUTTONDOWN:
+		activeScene->userinput(MouseClickEvent(MouseButton::Left, LOWORD(lParam), HIWORD(lParam), true));
+		return 0;
+	case WM_LBUTTONUP:
+		activeScene->userinput(MouseClickEvent(MouseButton::Left, LOWORD(lParam), HIWORD(lParam), false));
+		return 0;
 
-	case WM_MBUTTONDOWN: activeScene->userinput(MouseClickEvent(MouseButton::Middle, LOWORD(lParam), HIWORD(lParam), true)); return 0;
-	case WM_MBUTTONUP: activeScene->userinput(MouseClickEvent(MouseButton::Middle, LOWORD(lParam), HIWORD(lParam), false)); return 0;
+	case WM_MBUTTONDOWN:
+		activeScene->userinput(MouseClickEvent(MouseButton::Middle, LOWORD(lParam), HIWORD(lParam), true));
+		return 0;
+	case WM_MBUTTONUP:
+		activeScene->userinput(MouseClickEvent(MouseButton::Middle, LOWORD(lParam), HIWORD(lParam), false));
+		return 0;
 
-	case WM_RBUTTONDOWN: activeScene->userinput(MouseClickEvent(MouseButton::Right, LOWORD(lParam), HIWORD(lParam), true)); return 0;
-	case WM_RBUTTONUP: activeScene->userinput(MouseClickEvent(MouseButton::Right, LOWORD(lParam), HIWORD(lParam), false)); return 0;
+	case WM_RBUTTONDOWN:
+		activeScene->userinput(MouseClickEvent(MouseButton::Right, LOWORD(lParam), HIWORD(lParam), true));
+		return 0;
+	case WM_RBUTTONUP:
+		activeScene->userinput(MouseClickEvent(MouseButton::Right, LOWORD(lParam), HIWORD(lParam), false));
+		return 0;
 
 	case WM_MOUSEMOVE: activeScene->userinput(MouseMoveEvent(LOWORD(lParam), HIWORD(lParam))); return 0;
 
@@ -94,8 +107,10 @@ Game::Game(IScene* startingScene, const char* windowName) {
 			pThis->window = hwnd;
 			SetWindowLongPtrA(hwnd, GWLP_USERDATA, (LONG_PTR)pThis);
 			return DefWindowProcA(hwnd, uMsg, wParam, lParam);
-		} else if(GetWindowLongPtrA(hwnd, GWLP_USERDATA)) return ((Game*)GetWindowLongPtrA(hwnd, GWLP_USERDATA))->WndMsg(uMsg, wParam, lParam);
-		else return DefWindowProcA(hwnd, uMsg, wParam, lParam);
+		} else if(GetWindowLongPtrA(hwnd, GWLP_USERDATA))
+			return ((Game*)GetWindowLongPtrA(hwnd, GWLP_USERDATA))->WndMsg(uMsg, wParam, lParam);
+		else
+			return DefWindowProcA(hwnd, uMsg, wParam, lParam);
 	};
 
 	wc.hInstance = GetModuleHandleA(0);
@@ -125,7 +140,7 @@ void Game::RenderCurrentScene() {
 	if(r->CreateTarget()) {
 		r->BeginDraw();
 		activeScene->render();
-		if(drawDebug){
+		if(drawDebug) {
 			Str debugStr = str("fps: " + currentFps + "\n");
 			debugStr += str("tps: " + currentTPS + "\n");
 			debugStr += str("frametime: " + frameTime * 1000 + "ms\n");

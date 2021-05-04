@@ -41,7 +41,7 @@ class OpenCastle : public IScene {
 		w = r->GetWidth();
 		h = r->GetHeight();
 		fieldSize = 55;
-		game->gameTPS = 128;
+		game->gameTPS = 150;
 		game->targetFps = 200;
 		zoom();
 		tiles[0] = r->CreateTexture("textures/grass.png");

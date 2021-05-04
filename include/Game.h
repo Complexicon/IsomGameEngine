@@ -48,6 +48,7 @@ class Game {
 	void RenderCurrentScene();
 	int start();
 
+	void StopEngine();
 	int getFPS() { return currentFps; }
 	int getTPS() { return currentTPS; }
 	float getTickTime() { return tickTime; }

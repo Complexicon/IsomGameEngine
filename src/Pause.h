@@ -38,7 +38,7 @@ class PauseMenu : public IScene {
 					MouseClickEvent me = CAST(MouseClickEvent, e);
 					if(!me.pressed && me.button != MouseButton::Left) return;
 					if(overContinue) game->activeScene = oldScene;
-					else if(overQuit) PostQuitMessage(0);
+					else if(overQuit) game->StopEngine();
 				}
 				return;
 			case UserInputType::Keyboard:
