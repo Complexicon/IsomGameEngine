@@ -59,14 +59,6 @@ class OpenCastle : public IScene {
 		if(mouse.y > 0.7 || mouse.y < -0.7) cam.y += mouse.y / 2;
 		selectedTile = PIXTOTILE(mouseReal);
 		if(draw) m.SetTile(selectedTile.x, selectedTile.y, 0);
-
-		game->additionalDebugInfo = (
-			VECPOS("cam", cam) + 
-			VECPOS("mouse", mouse) + 
-			VECPOS("mouse selected tile", selectedTile) +
-			line("drawing " + draw)
-		);
-
 	}
 
 	void zoom(bool in = false) {
@@ -99,6 +91,14 @@ class OpenCastle : public IScene {
 		}
 
 		drawTile(selectedTile.x - (int)tmp.x, selectedTile.y - (int)tmp.y, 3, tmp, pxOff);
+
+		game->additionalDebugInfo = (
+			VECPOS("cam", tmp) + 
+			VECPOS("mouse", mouse) + 
+			VECPOS("mouse selected tile", selectedTile) +
+			line("drawing " + draw)
+		);
+
 	}
 
 	void userinput(const UserInputEvent& e){
