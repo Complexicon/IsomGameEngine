@@ -19,5 +19,7 @@ jobs:
       run: make
     - uses: actions/upload-artifact@v2
       with:
-        name: CXEngine.exe
-        path: out.exe
+        name: Engine
+        path: 
+          out.exe
+          textures
